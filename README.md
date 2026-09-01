@@ -104,6 +104,24 @@ com suporte a modo claro/escuro:
 | Rose (tag/categoria) | `#B15A46` | `#D98A73` |
 | Fundo / Superfície | `#F5F6F3` / `#FFFFFF` | `#101513` / `#161D1A` |
 
+## Deploy
+
+O projeto está pronto para deploy gratuito na [Vercel](https://vercel.com/new),
+plataforma nativa para Next.js (não requer `vercel.json` neste projeto — a
+Vercel detecta e configura o build automaticamente).
+
+1. Acesse [vercel.com/new](https://vercel.com/new) e importe este repositório
+   (`colossalgrupo/studio-flow-web`).
+2. O framework é detectado automaticamente como **Next.js** — não é preciso
+   alterar comandos de build/start.
+3. Em **Environment Variables**, copie as variáveis de `.env.local.example`
+   e preencha os valores para o ambiente de produção (hoje nenhuma é
+   obrigatória, já que o painel roda com dados mock).
+4. Clique em **Deploy**. O plano gratuito (Hobby) da Vercel é suficiente para
+   o volume deste projeto.
+
+Cada push na branch `master` gera um novo deploy automaticamente.
+
 ## Planos de assinatura (mock)
 
 | Plano    | Preço/mês  | Taxa da plataforma | Profissionais |
