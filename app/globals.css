@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #f5f6f3;
+  --surface: #ffffff;
+  --foreground: #14201c;
+  --muted: #5b6b64;
+  --border: #dfe4e0;
+
+  --accent: #0f6b5c;
+  --accent-foreground: #ffffff;
+  --gold: #b8863a;
+  --gold-foreground: #ffffff;
+  --rose: #b15a46;
+  --rose-foreground: #ffffff;
+
+  --success: #1a7a4c;
+  --warning: #b8863a;
+  --danger: #b0413a;
+}
+
+.dark {
+  --background: #101513;
+  --surface: #161d1a;
+  --foreground: #eef2f0;
+  --muted: #9db0a8;
+  --border: #263230;
+
+  --accent: #48c7a6;
+  --accent-foreground: #08211b;
+  --gold: #d9a857;
+  --gold-foreground: #26190a;
+  --rose: #d98a73;
+  --rose-foreground: #2b1310;
+
+  --success: #48c7a6;
+  --warning: #d9a857;
+  --danger: #e08277;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-rose: var(--rose);
+  --color-rose-foreground: var(--rose-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
