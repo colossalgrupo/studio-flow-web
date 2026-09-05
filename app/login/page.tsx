@@ -1,23 +1,33 @@
 "use client";
 
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth/context";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const { entrar, autenticado, carregando } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const destino = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("camila@estudiobellamente.com.br");
   const [senha, setSenha] = useState("studioflow");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
-    if (!carregando && autenticado) router.replace("/dashboard");
-  }, [carregando, autenticado, router]);
+    if (!carregando && autenticado) router.replace(destino);
+  }, [carregando, autenticado, router, destino]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -25,7 +35,7 @@ export default function LoginPage() {
     setEnviando(true);
     try {
       await entrar({ email, senha });
-      router.replace("/dashboard");
+      router.replace(destino);
     } catch (err) {
       setErro(err instanceof Error ? err.message : "Não foi possível entrar.");
     } finally {

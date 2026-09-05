@@ -85,12 +85,24 @@ basta trocar a implementação interna de cada função por uma chamada
 
 ### Autenticação
 
-O fluxo de login (`app/login`) chama `services/auth.ts`, que hoje apenas
-valida o formato do e-mail/senha e devolve um token mock. O token e o usuário
-são guardados em `localStorage` (mais um cookie, já preparado para uma futura
-verificação em middleware/servidor) e o layout de `(dashboard)` funciona como
-guarda de rota no client, redirecionando para `/login` quando não há sessão.
-Quando o backend expuser JWT real, troque apenas `services/auth.ts`.
+O fluxo de login (`app/login`) chama `services/auth.ts`, que conecta na API
+real (Kotlin + Spring Boot) assim que `NEXT_PUBLIC_API_URL` é definida no
+`.env.local`; sem essa variável, continua validando apenas o formato do
+e-mail/senha e devolvendo um token mock, para o painel funcionar sozinho em
+demonstração.
+
+Endpoints usados (ver `.env.local.example` e `services/auth.ts`):
+
+- `POST /auth/login` — `{ email, senha }` → `{ token, usuario }`
+- `GET /auth/me` — valida o token e devolve o usuário atualizado
+- `POST /auth/logout`
+
+O token e o usuário são guardados em `localStorage` via `lib/auth/storage.ts`,
+além de um cookie usado por `middleware.ts` para proteger as rotas no
+servidor (redireciona para `/login?redirect=...` quando não há sessão). O
+client HTTP central (`lib/api/client.ts`) anexa o header `Authorization` e
+dispara um evento (`SESSAO_EXPIRADA_EVENT`) quando o backend responde 401, que
+o `AuthProvider` escuta para encerrar a sessão automaticamente.
 
 ## Identidade visual
 

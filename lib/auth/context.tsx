@@ -1,8 +1,10 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { apiConfigurada, SESSAO_EXPIRADA_EVENT } from "@/lib/api/client";
+import { getToken, getUsuarioSalvo, limparSessao, salvarSessao } from "@/lib/auth/storage";
 import type { Usuario } from "@/lib/types";
-import { AUTH_TOKEN_KEY, AUTH_USER_KEY, login as loginService, logout as logoutService } from "@/services/auth";
+import { login as loginService, logout as logoutService, obterUsuarioLogado } from "@/services/auth";
 import type { LoginPayload } from "@/services/auth";
 
 interface AuthState {
@@ -19,34 +21,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [carregando, setCarregando] = useState(true);
 
+  const sair = useCallback(async () => {
+    await logoutService();
+    limparSessao();
+    setUsuario(null);
+  }, []);
+
   useEffect(() => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    const raw = localStorage.getItem(AUTH_USER_KEY);
-    if (token && raw) {
-      try {
-        setUsuario(JSON.parse(raw) as Usuario);
-      } catch {
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        localStorage.removeItem(AUTH_USER_KEY);
+    let cancelado = false;
+
+    async function restaurarSessao() {
+      const token = getToken();
+      const usuarioSalvo = getUsuarioSalvo();
+      if (!token || !usuarioSalvo) {
+        setCarregando(false);
+        return;
       }
+
+      // Com a API real configurada, valida o token junto ao backend em vez de
+      // confiar apenas no que está salvo localmente.
+      if (apiConfigurada()) {
+        try {
+          const usuarioAtualizado = await obterUsuarioLogado();
+          if (!cancelado) setUsuario(usuarioAtualizado);
+        } catch {
+          if (!cancelado) limparSessao();
+        }
+      } else {
+        setUsuario(usuarioSalvo);
+      }
+      if (!cancelado) setCarregando(false);
     }
-    setCarregando(false);
+
+    restaurarSessao();
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    function aoExpirar() {
+      limparSessao();
+      setUsuario(null);
+    }
+    window.addEventListener(SESSAO_EXPIRADA_EVENT, aoExpirar);
+    return () => window.removeEventListener(SESSAO_EXPIRADA_EVENT, aoExpirar);
   }, []);
 
   const entrar = useCallback(async (payload: LoginPayload) => {
     const { token, usuario: user } = await loginService(payload);
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-    document.cookie = `${AUTH_TOKEN_KEY}=${token}; path=/; max-age=604800`;
+    salvarSessao(token, user);
     setUsuario(user);
-  }, []);
-
-  const sair = useCallback(async () => {
-    await logoutService();
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-    document.cookie = `${AUTH_TOKEN_KEY}=; path=/; max-age=0`;
-    setUsuario(null);
   }, []);
 
   return (
