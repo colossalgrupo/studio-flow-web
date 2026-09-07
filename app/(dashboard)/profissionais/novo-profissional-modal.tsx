@@ -33,7 +33,8 @@ export function NovoProfissionalModal({
   const [agencia, setAgencia] = useState("");
   const [conta, setConta] = useState("");
   const [chavePix, setChavePix] = useState("");
-  const [comissao, setComissao] = useState(50);
+  const [comissao, setComissao] = useState("");
+  const [erroComissao, setErroComissao] = useState<string | null>(null);
   const [servicosSelecionados, setServicosSelecionados] = useState<string[]>([]);
   const [periodicidade, setPeriodicidade] = useState<Periodicidade>("semanal");
   const [salvando, setSalvando] = useState(false);
@@ -54,7 +55,8 @@ export function NovoProfissionalModal({
       setAgencia("");
       setConta("");
       setChavePix("");
-      setComissao(50);
+      setComissao("");
+      setErroComissao(null);
       setServicosSelecionados([]);
       setPeriodicidade("semanal");
     }
@@ -73,6 +75,14 @@ export function NovoProfissionalModal({
       return;
     }
     setErroCpf(null);
+
+    const comissaoNum = Number(comissao);
+    if (comissao.trim() === "" || Number.isNaN(comissaoNum) || comissaoNum < 0 || comissaoNum > 100) {
+      setErroComissao("Informe um percentual entre 0 e 100.");
+      return;
+    }
+    setErroComissao(null);
+
     setSalvando(true);
     try {
       await criarProfissional({
@@ -88,7 +98,7 @@ export function NovoProfissionalModal({
         contaBancaria: { banco, agencia, conta, chavePix },
         comissoes: servicosSelecionados.map((servicoId) => ({
           servicoId,
-          percentual: comissao / 100,
+          percentual: comissaoNum / 100,
         })),
         periodicidadeRepasse: periodicidade,
         status: "ativo",
@@ -163,14 +173,18 @@ export function NovoProfissionalModal({
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Comissão do profissional (%)">
+          <Field label="Comissão do profissional (%)" error={erroComissao ?? undefined}>
             <Input
               type="number"
               min={0}
               max={100}
               required
               value={comissao}
-              onChange={(e) => setComissao(Number(e.target.value))}
+              onChange={(e) => {
+                setComissao(e.target.value);
+                if (erroComissao) setErroComissao(null);
+              }}
+              placeholder="Ex.: 50"
             />
           </Field>
           <Field label="Periodicidade de repasse">
