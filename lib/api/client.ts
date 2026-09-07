@@ -29,16 +29,18 @@ interface ApiFetchOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
   /** Anexa o header Authorization com o token salvo. Padrão: true. */
   autenticado?: boolean;
+  /** Usa este token em vez do salvo em storage — útil logo após o login, antes da sessão ser persistida. */
+  tokenOverride?: string;
 }
 
 export async function apiFetch<T>(
   path: string,
-  { body, autenticado = true, headers, ...init }: ApiFetchOptions = {},
+  { body, autenticado = true, tokenOverride, headers, ...init }: ApiFetchOptions = {},
 ): Promise<T> {
   const finalHeaders = new Headers(headers);
   finalHeaders.set("Content-Type", "application/json");
   if (autenticado) {
-    const token = getToken();
+    const token = tokenOverride ?? getToken();
     if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
   }
 

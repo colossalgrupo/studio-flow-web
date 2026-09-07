@@ -3,7 +3,8 @@
 
 export type Periodicidade = "semanal" | "mensal";
 
-export type PlanoId = "standard" | "black" | "diamond";
+// Id real do plano no banco (Mongo ObjectId) — não é um enum fixo.
+export type PlanoId = string;
 
 export interface Plano {
   id: PlanoId;

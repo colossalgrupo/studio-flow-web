@@ -1,11 +1,26 @@
-// Mock dashboard summary service.
-// Swap for a real call (GET /dashboard/resumo?periodo=...) later.
+// Serviço de resumo do dashboard.
+// Chama a API real (/dashboard/resumo) quando NEXT_PUBLIC_API_URL está
+// configurada; caso contrário usa dados mockados (ver README).
+import { apiConfigurada, apiFetch } from "@/lib/api/client";
 import { delay } from "@/lib/mock/delay";
 import { AGENDAMENTOS, PROFISSIONAIS, TRANSACOES } from "@/lib/mock/seed";
 import type { DashboardResumo } from "@/lib/types";
 import { listarRepasses } from "@/services/financial";
 
+interface BackendDashboardResumo {
+  totalAgendamentosPeriodo: number;
+  faturamentoPeriodo: number;
+  repassesPendentes: number;
+  profissionaisAtivos: number;
+  variacaoFaturamento: number;
+  faturamentoPorDia: { data: string; valor: number }[];
+}
+
 export async function obterResumoDashboard(): Promise<DashboardResumo> {
+  if (apiConfigurada()) {
+    return apiFetch<BackendDashboardResumo>("/dashboard/resumo");
+  }
+
   const repasses = await listarRepasses();
   const repassesPendentes = repasses
     .filter((r) => r.status === "pendente")
