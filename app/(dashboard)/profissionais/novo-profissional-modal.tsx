@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { Modal } from "@/components/ui/modal";
 import type { Periodicidade, Servico } from "@/lib/types";
 import { criarProfissional } from "@/services/professionals";
@@ -33,8 +34,7 @@ export function NovoProfissionalModal({
   const [agencia, setAgencia] = useState("");
   const [conta, setConta] = useState("");
   const [chavePix, setChavePix] = useState("");
-  const [comissao, setComissao] = useState("");
-  const [erroComissao, setErroComissao] = useState<string | null>(null);
+  const [comissao, setComissao] = useState(50);
   const [servicosSelecionados, setServicosSelecionados] = useState<string[]>([]);
   const [periodicidade, setPeriodicidade] = useState<Periodicidade>("semanal");
   const [salvando, setSalvando] = useState(false);
@@ -55,8 +55,7 @@ export function NovoProfissionalModal({
       setAgencia("");
       setConta("");
       setChavePix("");
-      setComissao("");
-      setErroComissao(null);
+      setComissao(50);
       setServicosSelecionados([]);
       setPeriodicidade("semanal");
     }
@@ -75,14 +74,6 @@ export function NovoProfissionalModal({
       return;
     }
     setErroCpf(null);
-
-    const comissaoNum = Number(comissao);
-    if (comissao.trim() === "" || Number.isNaN(comissaoNum) || comissaoNum < 0 || comissaoNum > 100) {
-      setErroComissao("Informe um percentual entre 0 e 100.");
-      return;
-    }
-    setErroComissao(null);
-
     setSalvando(true);
     try {
       await criarProfissional({
@@ -98,7 +89,7 @@ export function NovoProfissionalModal({
         contaBancaria: { banco, agencia, conta, chavePix },
         comissoes: servicosSelecionados.map((servicoId) => ({
           servicoId,
-          percentual: comissaoNum / 100,
+          percentual: comissao / 100,
         })),
         periodicidadeRepasse: periodicidade,
         status: "ativo",
@@ -173,20 +164,18 @@ export function NovoProfissionalModal({
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Comissão do profissional (%)" error={erroComissao ?? undefined}>
-            <Input
-              type="number"
-              min={0}
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground">Comissão do profissional</label>
+              <span className="text-sm font-semibold text-accent">{comissao}%</span>
+            </div>
+            <Slider
+              min={1}
               max={100}
-              required
               value={comissao}
-              onChange={(e) => {
-                setComissao(e.target.value);
-                if (erroComissao) setErroComissao(null);
-              }}
-              placeholder="Ex.: 50"
+              onChange={(e) => setComissao(Number(e.target.value))}
             />
-          </Field>
+          </div>
           <Field label="Periodicidade de repasse">
             <Select value={periodicidade} onChange={(e) => setPeriodicidade(e.target.value as Periodicidade)}>
               <option value="semanal">Semanal</option>
