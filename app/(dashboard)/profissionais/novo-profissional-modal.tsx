@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/modal";
 import type { Periodicidade, Servico } from "@/lib/types";
 import { criarProfissional } from "@/services/professionals";
 import { listarServicos } from "@/services/services";
+import { formatarCpfCnpj, validarCpfCnpj } from "@/lib/documento";
 
 const CORES = ["#0F6B5C", "#B15A46", "#B8863A"];
 
@@ -23,6 +24,7 @@ export function NovoProfissionalModal({
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
+  const [erroCpf, setErroCpf] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [especialidades, setEspecialidades] = useState("");
@@ -43,6 +45,7 @@ export function NovoProfissionalModal({
     if (!open) {
       setNome("");
       setCpf("");
+      setErroCpf(null);
       setEmail("");
       setTelefone("");
       setEspecialidades("");
@@ -64,6 +67,11 @@ export function NovoProfissionalModal({
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!validarCpfCnpj(cpf)) {
+      setErroCpf("CPF ou CNPJ inválido.");
+      return;
+    }
+    setErroCpf(null);
     setSalvando(true);
     try {
       await criarProfissional({
@@ -97,8 +105,17 @@ export function NovoProfissionalModal({
           <Field label="Nome completo">
             <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Ana Paula Souza" />
           </Field>
-          <Field label="CPF">
-            <Input required value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+          <Field label="CPF ou CNPJ" error={erroCpf ?? undefined}>
+            <Input
+              required
+              value={cpf}
+              onChange={(e) => {
+                setCpf(formatarCpfCnpj(e.target.value));
+                if (erroCpf) setErroCpf(null);
+              }}
+              maxLength={18}
+              placeholder="000.000.000-00 ou 00.000.000/0001-00"
+            />
           </Field>
           <Field label="E-mail">
             <Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
