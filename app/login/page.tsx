@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth/context";
+import { apiConfigurada } from "@/lib/api/client";
 
 export default function LoginPage() {
   return (
@@ -20,8 +21,8 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const destino = searchParams.get("redirect") || "/dashboard";
-  const [email, setEmail] = useState("camila@estudiobellamente.com.br");
-  const [senha, setSenha] = useState("studioflow");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -89,9 +90,11 @@ function LoginForm() {
             Entrar
           </Button>
 
-          <p className="text-center text-xs text-muted">
-            Ambiente de demonstração — qualquer e-mail e senha (mín. 4 caracteres) funcionam.
-          </p>
+          {!apiConfigurada() && (
+            <p className="text-center text-xs text-muted">
+              Ambiente de demonstração — qualquer e-mail e senha (mín. 4 caracteres) funcionam.
+            </p>
+          )}
         </form>
       </div>
     </div>
