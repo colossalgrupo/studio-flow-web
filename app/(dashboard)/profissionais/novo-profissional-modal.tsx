@@ -9,6 +9,7 @@ import type { Periodicidade, Servico } from "@/lib/types";
 import { criarProfissional } from "@/services/professionals";
 import { listarServicos } from "@/services/services";
 import { formatarCpfCnpj, validarCpfCnpj } from "@/lib/documento";
+import { formatarTelefone } from "@/lib/telefone";
 
 const CORES = ["#0F6B5C", "#B15A46", "#B8863A"];
 
@@ -121,7 +122,13 @@ export function NovoProfissionalModal({
             <Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
           <Field label="Telefone">
-            <Input required value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 90000-0000" />
+            <Input
+              required
+              value={telefone}
+              onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+              maxLength={15}
+              placeholder="(11) 90000-0000"
+            />
           </Field>
         </div>
 
