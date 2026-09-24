@@ -81,6 +81,8 @@ export const PROFISSIONAIS: Profissional[] = [
     periodicidadeRepasse: "semanal",
     status: "ativo",
     criadoEm: "2025-11-02",
+    dataNascimento: "1990-04-12",
+    faturamentoMensal: 4500,
   },
   {
     id: "p2",
@@ -103,6 +105,8 @@ export const PROFISSIONAIS: Profissional[] = [
     periodicidadeRepasse: "mensal",
     status: "ativo",
     criadoEm: "2025-11-10",
+    dataNascimento: "1988-08-23",
+    faturamentoMensal: 5200,
   },
   {
     id: "p3",
@@ -122,6 +126,8 @@ export const PROFISSIONAIS: Profissional[] = [
     periodicidadeRepasse: "semanal",
     status: "ativo",
     criadoEm: "2025-12-01",
+    dataNascimento: "1995-02-17",
+    faturamentoMensal: 3800,
   },
   {
     id: "p4",
@@ -141,6 +147,8 @@ export const PROFISSIONAIS: Profissional[] = [
     periodicidadeRepasse: "mensal",
     status: "ativo",
     criadoEm: "2026-01-15",
+    dataNascimento: "1992-11-05",
+    faturamentoMensal: 6100,
   },
   {
     id: "p5",
@@ -160,6 +168,8 @@ export const PROFISSIONAIS: Profissional[] = [
     periodicidadeRepasse: "semanal",
     status: "inativo",
     criadoEm: "2025-10-20",
+    dataNascimento: "1998-06-30",
+    faturamentoMensal: 2900,
   },
 ];
 

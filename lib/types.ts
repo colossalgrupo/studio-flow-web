@@ -43,6 +43,9 @@ export interface Profissional {
   periodicidadeRepasse: Periodicidade;
   status: StatusProfissional;
   criadoEm: string;
+  /** Exigidos pelo backend pra abrir a subconta de pagamento (split) do profissional. */
+  dataNascimento: string; // yyyy-MM-dd
+  faturamentoMensal: number;
 }
 
 export interface Servico {

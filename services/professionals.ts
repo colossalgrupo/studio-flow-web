@@ -42,6 +42,8 @@ interface BackendProfissional {
   periodicidadeRepasse: "SEMANAL" | "MENSAL";
   contaBancaria: BackendContaBancaria;
   ativo: boolean;
+  dataNascimento: string | null;
+  faturamentoMensal: number;
 }
 
 function paraContaBancaria(c: BackendContaBancaria): ContaBancaria {
@@ -71,6 +73,8 @@ function paraProfissional(p: BackendProfissional): Profissional {
     periodicidadeRepasse: paraPeriodicidade(p.periodicidadeRepasse),
     status: p.ativo ? "ativo" : "inativo",
     criadoEm: criadoEmDoId(p.id),
+    dataNascimento: p.dataNascimento ?? "",
+    faturamentoMensal: p.faturamentoMensal,
   };
 }
 
@@ -86,6 +90,8 @@ function paraRequest(input: NovoProfissionalInput | Profissional) {
     periodicidadeRepasse: paraPeriodicidadeBackend(input.periodicidadeRepasse),
     contaBancaria: input.contaBancaria,
     ativo: input.status === "ativo",
+    dataNascimento: input.dataNascimento,
+    faturamentoMensal: input.faturamentoMensal,
   };
 }
 

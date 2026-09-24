@@ -30,6 +30,8 @@ export function NovoProfissionalModal({
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [especialidades, setEspecialidades] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [faturamentoMensal, setFaturamentoMensal] = useState(0);
   const [banco, setBanco] = useState("");
   const [agencia, setAgencia] = useState("");
   const [conta, setConta] = useState("");
@@ -51,6 +53,8 @@ export function NovoProfissionalModal({
       setEmail("");
       setTelefone("");
       setEspecialidades("");
+      setDataNascimento("");
+      setFaturamentoMensal(0);
       setBanco("");
       setAgencia("");
       setConta("");
@@ -93,6 +97,8 @@ export function NovoProfissionalModal({
         })),
         periodicidadeRepasse: periodicidade,
         status: "ativo",
+        dataNascimento,
+        faturamentoMensal,
       });
       onCriado();
     } finally {
@@ -141,6 +147,32 @@ export function NovoProfissionalModal({
             placeholder="Corte feminino, Coloração"
           />
         </Field>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Data de nascimento">
+            <Input
+              required
+              type="date"
+              value={dataNascimento}
+              onChange={(e) => setDataNascimento(e.target.value)}
+            />
+          </Field>
+          <Field label="Faturamento/renda mensal (R$)">
+            <Input
+              required
+              type="number"
+              min={0.01}
+              step="0.01"
+              value={faturamentoMensal || ""}
+              onChange={(e) => setFaturamentoMensal(Number(e.target.value))}
+              placeholder="Ex.: 3000"
+            />
+          </Field>
+        </div>
+        <p className="-mt-2 text-xs text-muted">
+          Data de nascimento e faturamento são exigidos pra abrir a conta de pagamento do profissional (é o que
+          recebe a comissão automaticamente a cada agendamento pago).
+        </p>
 
         <div>
           <p className="mb-1.5 text-sm font-medium">Serviços vinculados e comissão</p>
