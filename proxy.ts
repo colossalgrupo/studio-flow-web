@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { AUTH_TOKEN_KEY } from "@/lib/auth/storage";
 
 // Rotas que não exigem autenticação.
-const PUBLIC_PATHS = new Set(["/", "/login"]);
+const PUBLIC_PATHS = new Set(["/", "/login", "/verify-email"]);
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
