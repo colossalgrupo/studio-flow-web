@@ -23,6 +23,39 @@ export interface ContaBancaria {
   chavePix: string;
 }
 
+export type CategoriaEstabelecimento =
+  | "BARBEARIA"
+  | "MANICURE"
+  | "PODOLOGIA"
+  | "MASSOTERAPIA"
+  | "TRANCISTA"
+  | "PERSONAL_TRAINER"
+  | "ESTUDIO_PILATES"
+  | "OUTRO";
+
+export interface Endereco {
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+}
+
+/** Tipo de empresa exigido pela Asaas ao abrir subconta com CNPJ. */
+export type TipoEmpresa = "MEI" | "LIMITED" | "INDIVIDUAL" | "ASSOCIATION";
+
+export interface Estabelecimento {
+  id: string;
+  nome: string;
+  categoria: CategoriaEstabelecimento;
+  endereco: Endereco;
+  cpfCnpj: string;
+  faturamentoMensal: number;
+  dataNascimento?: string; // yyyy-MM-dd, só quando cpfCnpj é CPF
+  companyType?: TipoEmpresa; // só quando cpfCnpj é CNPJ
+}
+
 export interface ComissaoServico {
   servicoId: string;
   percentual: number; // percentual repassado ao profissional, ex.: 0.6 = 60%

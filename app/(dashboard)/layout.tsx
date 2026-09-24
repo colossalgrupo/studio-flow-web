@@ -16,10 +16,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!carregando && !autenticado) {
       router.replace("/login");
+      return;
     }
-  }, [carregando, autenticado, router]);
+    if (!carregando && usuario && !usuario.negocio) {
+      router.replace("/onboarding");
+    }
+  }, [carregando, autenticado, usuario, router]);
 
-  if (carregando || !autenticado || !usuario) {
+  if (carregando || !autenticado || !usuario || !usuario.negocio) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background text-muted">
         Carregando painel…

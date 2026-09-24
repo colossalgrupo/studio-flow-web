@@ -13,6 +13,8 @@ interface AuthState {
   autenticado: boolean;
   entrar: (payload: LoginPayload) => Promise<void>;
   sair: () => Promise<void>;
+  /** Rebusca o usuário (ex.: depois de cadastrar o estabelecimento, pra atualizar `negocio`). */
+  atualizarUsuario: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -74,8 +76,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUsuario(user);
   }, []);
 
+  const atualizarUsuario = useCallback(async () => {
+    const token = getToken();
+    if (!token) return;
+    const usuarioAtualizado = await obterUsuarioLogado();
+    salvarSessao(token, usuarioAtualizado);
+    setUsuario(usuarioAtualizado);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ usuario, carregando, autenticado: !!usuario, entrar, sair }}>
+    <AuthContext.Provider value={{ usuario, carregando, autenticado: !!usuario, entrar, sair, atualizarUsuario }}>
       {children}
     </AuthContext.Provider>
   );
