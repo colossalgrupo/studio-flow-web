@@ -24,6 +24,7 @@ interface BackendAuthResponse {
   tipoPerfil: "EMPREENDEDOR" | "CLIENTE";
   nome: string;
   email: string;
+  planoPreferido?: string | null;
 }
 
 interface BackendMeResponse {
@@ -31,6 +32,7 @@ interface BackendMeResponse {
   nome: string;
   email: string;
   tipoPerfil: "EMPREENDEDOR" | "CLIENTE";
+  planoPreferido?: string | null;
 }
 
 /** Busca o nome do estabelecimento para exibir no painel; tolera o empreendedor ainda não ter cadastrado um. */
@@ -60,7 +62,13 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
       });
       garantirEmpreendedor(resposta.tipoPerfil);
       const negocio = await obterNomeDoNegocio(resposta.token);
-      const usuario: Usuario = { id: resposta.email, nome: resposta.nome, email: resposta.email, negocio };
+      const usuario: Usuario = {
+        id: resposta.email,
+        nome: resposta.nome,
+        email: resposta.email,
+        negocio,
+        planoPreferido: resposta.planoPreferido ?? undefined,
+      };
       return { token: resposta.token, usuario };
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 400)) {
@@ -90,9 +98,26 @@ export async function obterUsuarioLogado(): Promise<Usuario> {
     const me = await apiFetch<BackendMeResponse>("/auth/me");
     garantirEmpreendedor(me.tipoPerfil);
     const negocio = await obterNomeDoNegocio();
-    return { id: me.id, nome: me.nome, email: me.email, negocio };
+    return { id: me.id, nome: me.nome, email: me.email, negocio, planoPreferido: me.planoPreferido ?? undefined };
   }
   return delay(USUARIO_ATUAL, 200);
+}
+
+/** Confirma o e-mail (link enviado no cadastro) e já devolve uma sessão autenticada. */
+export async function verificarEmail(token: string): Promise<LoginResponse> {
+  const resposta = await apiFetch<BackendAuthResponse>(`/auth/verify-email?token=${encodeURIComponent(token)}`, {
+    autenticado: false,
+  });
+  garantirEmpreendedor(resposta.tipoPerfil);
+  const negocio = await obterNomeDoNegocio(resposta.token);
+  const usuario: Usuario = {
+    id: resposta.email,
+    nome: resposta.nome,
+    email: resposta.email,
+    negocio,
+    planoPreferido: resposta.planoPreferido ?? undefined,
+  };
+  return { token: resposta.token, usuario };
 }
 
 export async function logout(): Promise<void> {

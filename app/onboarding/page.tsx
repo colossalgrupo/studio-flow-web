@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/context";
 import { formatarCpfCnpj, validarCpfCnpj } from "@/lib/documento";
 import { criarEstabelecimento } from "@/services/establishment";
-import type { CategoriaEstabelecimento, TipoEmpresa } from "@/lib/types";
+import { listarPlanos, trocarPlano } from "@/services/plans";
+import type { CategoriaEstabelecimento, Plano, TipoEmpresa } from "@/lib/types";
 
 const CATEGORIAS: { value: CategoriaEstabelecimento; label: string }[] = [
   { value: "BARBEARIA", label: "Barbearia" },
@@ -52,6 +54,8 @@ export default function OnboardingPage() {
   const [companyType, setCompanyType] = useState<TipoEmpresa>("MEI");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [planos, setPlanos] = useState<Plano[]>([]);
+  const [planoSelecionadoId, setPlanoSelecionadoId] = useState<string>("");
 
   const documento = cpfCnpj.replace(/\D/g, "");
   const ehCnpj = documento.length > 11;
@@ -63,6 +67,17 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!carregando && usuario?.negocio) router.replace("/dashboard");
   }, [carregando, usuario, router]);
+
+  useEffect(() => {
+    listarPlanos().then((lista) => {
+      setPlanos(lista);
+      const preferido = usuario?.planoPreferido
+        ? lista.find((p) => p.nome.toLowerCase() === usuario.planoPreferido)
+        : undefined;
+      setPlanoSelecionadoId((preferido ?? lista.find((p) => p.nome === "Standard") ?? lista[0])?.id ?? "");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usuario?.planoPreferido]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -83,6 +98,11 @@ export default function OnboardingPage() {
         dataNascimento: ehCnpj ? undefined : dataNascimento,
         companyType: ehCnpj ? companyType : undefined,
       });
+      // O estabelecimento sempre nasce no plano Standard — só troca se a pessoa escolheu outro.
+      const planoEscolhido = planos.find((p) => p.id === planoSelecionadoId);
+      if (planoEscolhido && planoEscolhido.nome !== "Standard") {
+        await trocarPlano(planoEscolhido.id);
+      }
       await atualizarUsuario();
       router.replace("/dashboard");
     } catch (err) {
@@ -127,6 +147,30 @@ export default function OnboardingPage() {
                 ))}
               </Select>
             </Field>
+          </div>
+
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-foreground">Plano</p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {planos.map((p) => (
+                <button
+                  type="button"
+                  key={p.id}
+                  onClick={() => setPlanoSelecionadoId(p.id)}
+                  className={cn(
+                    "rounded-xl border px-3 py-3 text-center text-sm font-semibold transition-colors",
+                    planoSelecionadoId === p.id
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border bg-background text-foreground hover:bg-surface",
+                  )}
+                >
+                  {p.nome}
+                  <span className="mt-0.5 block text-xs font-normal text-muted">
+                    R$ {p.precoMensal.toFixed(2).replace(".", ",")}/mês
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <p className="pt-2 text-sm font-medium text-foreground">Endereço</p>

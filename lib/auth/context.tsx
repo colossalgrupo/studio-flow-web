@@ -15,6 +15,8 @@ interface AuthState {
   sair: () => Promise<void>;
   /** Rebusca o usuário (ex.: depois de cadastrar o estabelecimento, pra atualizar `negocio`). */
   atualizarUsuario: () => Promise<void>;
+  /** Persiste uma sessão já obtida (ex.: fluxo de confirmação de e-mail). */
+  definirSessao: (token: string, usuario: Usuario) => void;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -84,8 +86,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUsuario(usuarioAtualizado);
   }, []);
 
+  const definirSessao = useCallback((token: string, user: Usuario) => {
+    salvarSessao(token, user);
+    setUsuario(user);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ usuario, carregando, autenticado: !!usuario, entrar, sair, atualizarUsuario }}>
+    <AuthContext.Provider
+      value={{ usuario, carregando, autenticado: !!usuario, entrar, sair, atualizarUsuario, definirSessao }}
+    >
       {children}
     </AuthContext.Provider>
   );

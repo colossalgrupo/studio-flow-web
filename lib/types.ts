@@ -148,6 +148,8 @@ export interface Usuario {
   nome: string;
   email: string;
   negocio: string;
+  /** Plano escolhido no formulário de assinatura, antes de existir estabelecimento. */
+  planoPreferido?: string;
 }
 
 export interface DashboardResumo {
